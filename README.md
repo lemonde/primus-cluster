@@ -36,4 +36,29 @@ primus.write('Hello world!');
 ```
 
 ### Sentinel
-TODO
+[Redis Sentinel](http://redis.io/topics/sentinel) is a failover mechanism
+built into Redis.
+
+When using Sentinel, Redis client will automatically reconnect to new master
+server when current one goes down.
+
+```js
+var http = require('http'),
+    Primus = require('primus'),
+    PrimusRedis = require('primus-redis');
+
+var server = http.createServer();
+var primus = new Primus(server, {
+  redis: {
+    sentinel: true,
+    endpoints: [
+      { host: 'localhost', port: 26379 },
+      { host: 'localhost', port: 26380 },
+      { host: 'localhost', port: 26381 }
+    ],
+    masterName: 'mymaster'
+    channel: 'primus' // Optional, defaults to `'primus`'
+  },
+  transformer: 'websockets'
+});
+primus.use('Redis', PrimusRedis);
