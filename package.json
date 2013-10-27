@@ -11,6 +11,10 @@
     "ws": "0.4.x",
     "assert-called": "~0.1.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mmalecki/primus-redis.git"
+  },
   "scripts": {
     "test": "node test/simple-test.js"
   },
