@@ -1,0 +1,15 @@
+{
+  "name": "primus-redis",
+  "version": "0.0.0",
+  "description": "Redis plugin for Primus",
+  "dependencies": {
+    "redis": "0.9.x",
+    "redis-sentinel": "0.0.x"
+  },
+  "devDependencies": {
+    "primus": "1.4.x",
+    "ws": "0.4.x",
+    "assert-called": "~0.1.2"
+  },
+  "main": "./lib/primus-redis.js"
+}
