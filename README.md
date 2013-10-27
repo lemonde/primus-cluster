@@ -1,5 +1,6 @@
 # primus-redis
 [![Build Status](https://travis-ci.org/mmalecki/primus-redis.png)](https://travis-ci.org/mmalecki/primus-redis)
+
 `primus-redis` is a Redis store for [Primus](https://github.com/primus/primus).
 It takes care of distributing messages to other instances using [Redis Pub/Sub](http://redis.io/topics/pubsub).
 
