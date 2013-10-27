@@ -28,7 +28,6 @@ function getClient(primus) {
   var client = new (primus.Socket)('http://localhost:' + --PORT);
   client.on('open', cb(function () {
     console.log('client open');
-    primus0.write('Hello world');
   }));
   client.on('data', cb(function (msg) {
     console.log('client got message');
@@ -44,3 +43,4 @@ primus0 = getPrimus();
 primus1 = getPrimus();
 getClient(primus0);
 getClient(primus1);
+primus0.write('Hello world');
