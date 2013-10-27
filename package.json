@@ -14,5 +14,6 @@
   "scripts": {
     "test": "node test/simple-test.js"
   },
-  "main": "./lib/primus-redis.js"
+  "main": "./lib/primus-redis.js",
+  "license": "MIT"
 }
