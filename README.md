@@ -6,59 +6,34 @@ It takes care of distributing messages to other instances using [Redis Pub/Sub](
 
 ## Usage
 
-### Single Redis instance
-You can use `primus-redis` with a single Redis instance, but it's not
-recommended in production environment, since it makes Redis a single point of
-failure.
-
-
 ```js
-var http = require('http'),
-    Primus = require('primus'),
-    PrimusRedis = require('primus-redis');
+var http = require('http');
+var Primus = require('primus');
+var PrimusRedis = require('primus-redis');
 
 var server = http.createServer();
 var primus = new Primus(server, {
   redis: {
-    host: 'localhost',
-    port: 6379,
-    channel: 'primus' // Optional, defaults to `'primus`'
-  },
-  transformer: 'websockets'
+    createClient: createClient,
+    channel: 'primus' // Optionale, defaults to `'primus'`
+  }
 });
-primus.use('Redis', PrimusRedis);
 
-//
-// This'll take care of sending the message to all other instances connected
-// to the same Redis channel.
-//
-primus.write('Hello world!'); 
+// Create redis client.
+function createClient() {
+  var client = redis.createClient({
+    host: 'localhost'
+  });
+
+  // You can choose another db.
+  client.select(1);
+
+  return client;
+}
+
+primus.use('redis', PrimusRedis);
 ```
 
-### Sentinel
-[Redis Sentinel](http://redis.io/topics/sentinel) is a failover mechanism
-built into Redis.
+## License
 
-When using Sentinel, Redis client will automatically reconnect to new master
-server when current one goes down.
-
-```js
-var http = require('http'),
-    Primus = require('primus'),
-    PrimusRedis = require('primus-redis');
-
-var server = http.createServer();
-var primus = new Primus(server, {
-  redis: {
-    sentinel: true,
-    endpoints: [
-      { host: 'localhost', port: 26379 },
-      { host: 'localhost', port: 26380 },
-      { host: 'localhost', port: 26381 }
-    ],
-    masterName: 'mymaster'
-    channel: 'primus' // Optional, defaults to `'primus`'
-  },
-  transformer: 'websockets'
-});
-primus.use('Redis', PrimusRedis);
+MIT
