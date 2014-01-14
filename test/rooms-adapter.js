@@ -14,6 +14,10 @@ describe('Rooms adapter', function () {
     client.flushdb(done);
   });
 
+  afterEach(function (done) {
+    client.flushdb(done);
+  });
+
   describe('#add', function () {
     it('should add a socket into a room', function (done) {
       adapter.add('12', 'my:room:name', function (err) {
@@ -25,6 +29,22 @@ describe('Rooms adapter', function () {
           if (err) return done(err);
           expect(replies[0]).to.equal(1);
           expect(replies[1]).to.equal(1);
+          done();
+        });
+      });
+    });
+
+    it('should add a socket into a room with correct expire', function (done) {
+      adapter.ttl = 20;
+      adapter.add('12', 'my:room:name', function (err) {
+        if (err) return done(err);
+        client.multi()
+        .ttl('socket:12')
+        .ttl('room:my:room:name')
+        .exec(function (err, replies) {
+          if (err) return done(err);
+          expect(replies[0]).to.equal(20);
+          expect(replies[1]).to.equal(20);
           done();
         });
       });
