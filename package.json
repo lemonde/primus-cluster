@@ -1,6 +1,6 @@
 {
   "name": "primus-redis",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Redis plugin for Primus.",
   "devDependencies": {
     "primus": "~1.5.2",
