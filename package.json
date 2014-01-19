@@ -23,5 +23,8 @@
     "test": "mocha"
   },
   "main": ".",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "~2.4.1"
+  }
 }
