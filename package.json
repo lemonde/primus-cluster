@@ -2,6 +2,9 @@
   "name": "primus-redis",
   "version": "0.2.1",
   "description": "Redis plugin for Primus.",
+  "dependencies": {
+    "lodash": "~2.4.1"
+  },
   "devDependencies": {
     "primus": "~1.5.2",
     "ws": "~0.4.31",
@@ -23,8 +26,5 @@
     "test": "mocha --recursive"
   },
   "main": ".",
-  "license": "MIT",
-  "dependencies": {
-    "lodash": "~2.4.1"
-  }
+  "license": "MIT"
 }
