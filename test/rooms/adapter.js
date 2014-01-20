@@ -35,16 +35,16 @@ describe('Rooms adapter', function () {
     });
 
     it('should add a socket into a room with correct expire', function (done) {
-      adapter.ttl = 20;
+      adapter.ttl = 30000;
       adapter.add('12', 'my:room:name', function (err) {
         if (err) return done(err);
         client.multi()
-        .ttl('socket:12')
-        .ttl('room:my:room:name')
+        .pttl('socket:12')
+        .pttl('room:my:room:name')
         .exec(function (err, replies) {
           if (err) return done(err);
-          expect(replies[0]).to.equal(20);
-          expect(replies[1]).to.equal(20);
+          expect(replies[0]).to.be.most(30000);
+          expect(replies[1]).to.be.most(30000);
           done();
         });
       });
