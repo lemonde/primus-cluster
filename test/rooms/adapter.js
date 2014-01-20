@@ -2,7 +2,7 @@ var redis = require('redis');
 var async = require('async');
 var sinon = require('sinon');
 var expect = require('chai').use(require('sinon-chai')).expect;
-var RoomAdapter = require('../lib/rooms-adapter');
+var RoomAdapter = require('../../lib/rooms/adapter');
 
 describe('Rooms adapter', function () {
   var adapter, client;

@@ -20,7 +20,7 @@
     "url": "https://github.com/mmalecki/primus-redis.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --recursive"
   },
   "main": ".",
   "license": "MIT",

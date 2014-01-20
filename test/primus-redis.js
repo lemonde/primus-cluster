@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 var PORT = 3456;
 
 describe('PrimusRedis', function () {
-  var primus0, primus1, getClient;
+  var primus0, primus1, expectClientToReceive;
 
   beforeEach(function () {
     primus0 = createPrimus();
@@ -25,18 +25,18 @@ describe('PrimusRedis', function () {
       return primus;
     }
 
-    getClient = function getClient(primus) {
+    expectClientToReceive = function getClient(primus, expectedMsg) {
       var client = new (primus.Socket)('http://localhost:' + --PORT);
       client.on('data', function (msg) {
-        expect(msg).to.equal('Hello world');
+        expect(expectedMsg).to.equal(msg);
         client.end();
       });
     };
   });
 
-  it('should send message to clients', function () {
-    getClient(primus0);
-    getClient(primus1);
+  it('should "write" message to clients', function () {
+    expectClientToReceive(primus0, 'Hello world');
+    expectClientToReceive(primus1, 'Hello world');
     primus0.write('Hello world');
   });
 });
