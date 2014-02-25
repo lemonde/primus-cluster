@@ -1,55 +1,92 @@
-# primus-redis
-[![Build Status](https://travis-ci.org/neoziro/primus-redis.png)](https://travis-ci.org/neoziro/primus-redis)
+# primus-cluster
+[![Build Status](https://travis-ci.org/neoziro/primus-cluster.png)](https://travis-ci.org/neoziro/primus-cluster)
 
-`primus-redis` is a Redis store for [Primus](https://github.com/primus/primus).
-It takes care of distributing messages to other instances using [Redis Pub/Sub](http://redis.io/topics/pubsub).
+Primus cluster runs Primus accross multiple servers, it use Redis to store data and distribute messages across Primus instances. For more informations you can see [Redis Pub/Sub](http://redis.io/topics/pubsub).
 
-This fork of primus redis work with [primus-emitter](https://github.com/cayasso/primus-emitter/), [primus-rooms](https://github.com/cayasso/primus-rooms/), and [primus-resource](https://github.com/cayasso/primus-resource/).
+This project is a fork of the original project [primus-redis](https://github.com/mmalecki/primus-redis) that
+is not compatible with other Primus plugins and with Primus v2+.
 
-It doesn't work with [primus-multiplex](https://github.com/cayasso/primus-multiplex/), so if you want to use [primus-resource](https://github.com/cayasso/primus-resource/), you must take care of requiring resource with the multiplex option setted to `false`.
+This plugin works with [primus-emitter](https://github.com/cayasso/primus-emitter/), [primus-rooms](https://github.com/cayasso/primus-rooms/), and [primus-resource](https://github.com/cayasso/primus-resource/).
+
 
 ## Usage
 
 ```js
 var http = require('http');
 var Primus = require('primus');
-var PrimusRedis = require('primus-redis');
+var PrimusCluster = require('primus-cluster');
 
 var server = http.createServer();
-var primus = new Primus(server, {
-  redis: {
-    createClient: createClient,
-    channel: 'primus', // Optional, defaults to `'primus'`
-    rooms: {
-      ttl: 2000 // Optional, defaults to `86400000` (one day).
-    }
-  }
-});
+var primus = new Primus(server);
 
-// Create redis client.
-function createClient() {
-  var client = redis.createClient({
-    host: 'localhost'
-  });
-
-  // You can choose another db.
-  client.select(1);
-
-  return client;
-}
-
-primus.use('redis', PrimusRedis);
+primus.use('cluster', PrimusCluster);
 ```
 
-## Use with other plugins
+## Options
 
-When you use primus-redis with other plugins, you must take care of calling primus-redis after all plugins.
+### redis
 
+Type: `Object` or `Function`
+
+If you specify an **object**, the properties will be used to call `redis.createClient` method. The redis module used
+will be the Redis module installed. This project doesn't have [node_redis](https://github.com/mranney/node_redis/) module as dependency.
 
 ```js
-primus.use('rooms', PrimusRooms);
-primus.use('rooms', PrimusEmitter);
-primus.use('redis', PrimusRedis);
+new Primus(server, {
+  cluster: {
+    redis: {
+      port: 6379,
+      host: '127.0.0.1',
+      connect_timeout: 200
+    }
+  }
+})
+```
+
+If you specify a **function**, it will be called to create redis clients.
+
+```js
+var redis = require('redis');
+
+new Primus(server, {
+  cluster: {
+    redis: createClient
+  }
+})
+
+function createClient() {
+  var client = redis.createClient();
+  client.select(1); // Choose a custom database.
+  return client;
+}
+```
+
+### channel
+
+Type: `String`
+
+The name of the channel to use, the default channel is "primus".
+
+```js
+new Primus(server, {
+  cluster: {
+    channel: 'primus'
+  }
+})
+```
+
+### ttl
+
+Type: `Number`
+
+The TTL of the data stored in redis in second, the default value is 86400 (1 day). If you use [primus-rooms](https://github.com/cayasso/primus-rooms/), Primus cluster will store rooms data in redis.
+
+```js
+new Primus(server, {
+  cluster: {
+    ttl: 86400
+  }
+})
 ```
 
 ## License
