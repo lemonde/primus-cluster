@@ -89,6 +89,17 @@ new Primus(server, {
 })
 ```
 
+## Use with other plugins
+
+When you use primus-redis with other plugins, you must take care of calling primus-cluster after all plugins.
+
+
+```js
+primus.use('rooms', PrimusRooms);
+primus.use('rooms', PrimusEmitter);
+primus.use('cluster', PrimusCluster);
+```
+
 ## License
 
 MIT

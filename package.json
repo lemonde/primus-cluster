@@ -1,26 +1,28 @@
 {
-  "name": "primus-redis",
-  "version": "0.3.1",
-  "description": "Redis plugin for Primus.",
+  "name": "primus-cluster",
+  "version": "1.0.0",
+  "description": "Scale Primus across multiple servers.",
   "dependencies": {
     "lodash": "~2.4.1"
   },
   "devDependencies": {
-    "primus": "~1.5.2",
-    "ws": "~0.4.31",
     "redis": "~0.10.0",
     "mocha": "~1.17.0",
     "chai": "~1.8.1",
     "async": "~0.2.9",
     "sinon-chai": "~2.4.0",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "primus": "~2.0.2",
+    "ws": "~0.4.31",
+    "primus-emitter": "~3.0.0",
+    "primus-rooms": "~3.0.1"
   },
   "peerDependencies": {
     "primus": ">=1.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/neoziro/primus-redis.git"
+    "url": "https://github.com/neoziro/primus-cluster.git"
   },
   "scripts": {
     "test": "mocha --recursive"

@@ -2,4 +2,5 @@
  * Expose module.
  */
 
-module.exports = require('./lib/primus-redis');
+exports.Adapter = require('./lib/adapter');
+exports.server = require('./lib/primus-cluster');

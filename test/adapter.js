@@ -2,14 +2,18 @@ var redis = require('redis');
 var async = require('async');
 var sinon = require('sinon');
 var expect = require('chai').use(require('sinon-chai')).expect;
-var RoomAdapter = require('../../lib/rooms/adapter');
+var Adapter = require('../lib/adapter');
 
-describe('Rooms adapter', function () {
-  var adapter, client;
+describe('Adapter', function () {
+  var adapter, client, publish;
 
   beforeEach(function (done) {
+    publish = sinon.spy();
     client = redis.createClient();
-    adapter = new RoomAdapter({ client: client });
+    adapter = new Adapter({
+      client: client,
+      publish: publish
+    });
 
     client.flushdb(done);
   });
@@ -35,7 +39,7 @@ describe('Rooms adapter', function () {
     });
 
     it('should add a socket into a room with correct expire', function (done) {
-      adapter.ttl = 30000;
+      adapter.ttl = 30;
       adapter.add('12', 'my:room:name', function (err) {
         if (err) return done(err);
         client.multi()
@@ -94,31 +98,21 @@ describe('Rooms adapter', function () {
         });
       });
     });
-  });
 
-  describe('#delAll', function () {
-    beforeEach(function (done) {
-      async.series([
-        adapter.add.bind(adapter, '12', 'my:room:name'),
-        adapter.add.bind(adapter, '12', 'my:second:room:name'),
-        adapter.add.bind(adapter, '13', 'my:room:name')
-      ], done);
-    });
-
-    it('should remove all clients from a room', function (done) {
-      adapter.delAll('12', function (err) {
+    it('should remove client from all room if called without room', function (done) {
+      adapter.del('12', function (err) {
         if (err) return done(err);
         client.multi()
-        .exists('socket:12')
+        .sismember('socket:12', 'my:room:name')
         .sismember('room:my:room:name', '12')
+        .sismember('socket:12', 'my:second:room:name')
         .sismember('room:my:second:room:name', '12')
-        .sismember('room:my:room:name', '13')
         .exec(function (err, replies) {
           if (err) return done(err);
           expect(replies[0]).to.equal(0);
           expect(replies[1]).to.equal(0);
           expect(replies[2]).to.equal(0);
-          expect(replies[3]).to.equal(1);
+          expect(replies[3]).to.equal(0);
           done();
         });
       });
@@ -235,6 +229,59 @@ describe('Rooms adapter', function () {
         expect(clients.vincent.send).to.be.calledOnce;
         expect(clients.ludowic.send).to.be.calledOnce;
         expect(clients.samuel.send).to.be.calledOnce;
+        done();
+      });
+    });
+
+    it('should publish data', function (done) {
+      adapter.broadcast(data, { method: 'send', except: ['jose'] }, clients, function (err) {
+        if (err) return done(err);
+        expect(publish).to.be.calledWith(data, 'room', { method: 'send', except: ['jose'], rooms: [] });
+        done();
+      });
+    });
+  });
+
+  describe('#empty', function () {
+    beforeEach(function (done) {
+      async.series([
+        adapter.add.bind(adapter, '12', 'my:room:name'),
+        adapter.add.bind(adapter, '13', 'my:room:name')
+      ], done);
+    });
+
+    it('should remove all clients from a room', function (done) {
+      adapter.empty('my:room:name', function (err) {
+        if (err) return done(err);
+        client.exists('room:my:room:name', function (err, exists) {
+          if (err) return done(err);
+          expect(exists).to.equal(0);
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#isEmpty', function () {
+    beforeEach(function (done) {
+      async.series([
+        adapter.add.bind(adapter, '12', 'my:room:name'),
+        adapter.add.bind(adapter, '13', 'my:room:name')
+      ], done);
+    });
+
+    it('should return true if the room is empty', function (done) {
+      adapter.isEmpty('my:second:room:name', function (err, empty) {
+        if (err) return done(err);
+        expect(empty).to.be.true;
+        done();
+      });
+    });
+
+    it('should return false if the room is not empty', function (done) {
+      adapter.isEmpty('my:room:name', function (err, empty) {
+        if (err) return done(err);
+        expect(empty).to.be.false;
         done();
       });
     });
