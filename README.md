@@ -95,7 +95,7 @@ When you use primus-redis with other plugins, you must take care of calling prim
 
 ```js
 primus.use('rooms', PrimusRooms);
-primus.use('rooms', PrimusEmitter);
+primus.use('emitter', PrimusEmitter);
 primus.use('cluster', PrimusCluster);
 ```
 
