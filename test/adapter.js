@@ -100,7 +100,7 @@ describe('Adapter', function () {
     });
 
     it('should remove client from all room if called without room', function (done) {
-      adapter.del('12', function (err) {
+      adapter.del('12', null, function (err) {
         if (err) return done(err);
         client.multi()
         .sismember('socket:12', 'my:room:name')
