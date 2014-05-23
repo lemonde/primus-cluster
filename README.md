@@ -74,20 +74,6 @@ new Primus(server, {
 })
 ```
 
-### ttl
-
-Type: `Number`
-
-The TTL of the data stored in redis in second, the default value is 86400 (1 day). If you use [primus-rooms](https://github.com/cayasso/primus-rooms/), Primus cluster will store rooms data in redis.
-
-```js
-new Primus(server, {
-  cluster: {
-    ttl: 86400
-  }
-})
-```
-
 ## Use with other plugins
 
 When you use primus-redis with other plugins, you must take care of calling primus-cluster after all plugins.
