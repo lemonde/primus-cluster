@@ -3,19 +3,20 @@
   "version": "1.0.1",
   "description": "Scale Primus across multiple servers.",
   "dependencies": {
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "primus-rooms-adapter": "^0.1.1"
   },
   "devDependencies": {
-    "redis": "~0.10.0",
-    "mocha": "~1.17.0",
-    "chai": "~1.8.1",
     "async": "~0.2.9",
-    "sinon-chai": "~2.4.0",
-    "sinon": "~1.7.3",
+    "chai": "~1.8.1",
+    "mocha": "~1.17.0",
     "primus": "~2.0.2",
-    "ws": "~0.4.31",
     "primus-emitter": "~3.0.0",
-    "primus-rooms": "~3.0.1"
+    "primus-rooms": "^3.0.4",
+    "redis": "~0.10.0",
+    "sinon": "~1.7.3",
+    "sinon-chai": "~2.4.0",
+    "ws": "~0.4.31"
   },
   "peerDependencies": {
     "primus": ">=1.0.0"
