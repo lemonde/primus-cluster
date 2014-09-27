@@ -70,6 +70,14 @@ describe('Adapter', function () {
         done();
       });
     });
+
+    it('should return all rooms when the `id` argument is falsy', function (done) {
+      adapter.get(null, function (err, rooms) {
+        if (err) return done(err);
+        expect(rooms).to.have.members(['my:room:name', 'my:second:room:name']);
+        done();
+      });
+    });
   });
 
   describe('#del', function () {
