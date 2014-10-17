@@ -26,33 +26,47 @@ describe('Adapter', function () {
     it('should add a socket into a room', function (done) {
       adapter.add('12', 'my:room:name', function (err) {
         if (err) return done(err);
-        client.multi()
-        .sismember('socket:12', 'my:room:name')
-        .sismember('room:my:room:name', '12')
-        .exec(function (err, replies) {
+        adapter.get('12', function(err, rooms){
           if (err) return done(err);
-          expect(replies[0]).to.equal(1);
-          expect(replies[1]).to.equal(1);
+
+          expect(rooms).to.contain('my:room:name');
           done();
         });
       });
     });
 
-    it('should add a socket into a room with correct expire', function (done) {
-      adapter.ttl = 30;
+    it('should expire after given ttl', function (done) {
+      adapter.ttl = 1;
       adapter.add('12', 'my:room:name', function (err) {
         if (err) return done(err);
-        client.multi()
-        .ttl('socket:12')
-        .ttl('room:my:room:name')
-        .exec(function (err, replies) {
-          if (err) return done(err);
-          expect(replies[0]).to.be.most(30);
-          expect(replies[1]).to.be.most(30);
-          done();
-        });
+        setTimeout(function(){
+          adapter.get('12', function(err, rooms) {
+            if (err) return done(err);
+
+            expect(rooms).to.not.contain('my:room:name');
+            done();
+          });
+        }, 1100);
       });
     });
+
+    it('should not expire', function (done) {
+      adapter.ttl = 100;
+      adapter.add('12', 'my:room:name', function (err) {
+        if (err) return done(err);
+
+        setTimeout(function(){
+          adapter.get('12', function(err, rooms) {
+            if (err) return done(err);
+
+            expect(rooms).to.contain('my:room:name');
+            done();
+          });
+        }, 1100);
+
+      });
+    });
+
   });
 
   describe('#get', function () {
@@ -88,43 +102,58 @@ describe('Adapter', function () {
       ], done);
     });
 
-    it('should remove client from a room', function (done) {
+    it('should remove room from a client', function (done) {
       adapter.del('12', 'my:room:name', function (err) {
         if (err) return done(err);
-        client.multi()
-        .sismember('socket:12', 'my:room:name')
-        .sismember('room:my:room:name', '12')
-        .sismember('socket:12', 'my:second:room:name')
-        .sismember('room:my:second:room:name', '12')
-        .exec(function (err, replies) {
+        adapter.get('12', function(err, rooms) {
           if (err) return done(err);
-          expect(replies[0]).to.equal(0);
-          expect(replies[1]).to.equal(0);
-          expect(replies[2]).to.equal(1);
-          expect(replies[3]).to.equal(1);
+
+          expect(rooms).to.not.contain('my:room:name');
           done();
         });
       });
     });
 
-    it('should remove client from all room if called without room', function (done) {
+    it('should remove client from a room', function(done){
+      adapter.del('12', 'my:room:name', function (err) {
+        if (err) return done(err);
+        adapter.clients('my:room:name', function(err, client) {
+          if (err) return done(err);
+
+          expect(client).to.not.contain('12');
+          done();
+        });
+      });
+    })
+
+    it('should remove all rooms from the client if called without room', function (done) {
       adapter.del('12', null, function (err) {
         if (err) return done(err);
-        client.multi()
-        .sismember('socket:12', 'my:room:name')
-        .sismember('room:my:room:name', '12')
-        .sismember('socket:12', 'my:second:room:name')
-        .sismember('room:my:second:room:name', '12')
-        .exec(function (err, replies) {
+        adapter.get('12', function(err, rooms) {
           if (err) return done(err);
-          expect(replies[0]).to.equal(0);
-          expect(replies[1]).to.equal(0);
-          expect(replies[2]).to.equal(0);
-          expect(replies[3]).to.equal(0);
+          expect(rooms).to.be.eql([]);
           done();
         });
       });
     });
+
+
+    it('should remove client from all rooms if called without room', function (done) {
+      adapter.del('12', null, function (err) {
+        if (err) return done(err);
+
+        async.series([
+          adapter.clients.bind(adapter, 'my:room:name'),
+          adapter.clients.bind(adapter, 'my:second:room:name')
+        ], function(err, results) {
+          results.forEach(function(result){
+            expect(result).to.not.contain('12');
+          });
+          done();
+        });
+      });
+    });
+
   });
 
   describe('#clients', function () {
@@ -261,11 +290,11 @@ describe('Adapter', function () {
     it('should remove all clients from a room', function (done) {
       adapter.empty('my:room:name', function (err) {
         if (err) return done(err);
-        client.exists('room:my:room:name', function (err, exists) {
+        adapter.clients('my:room:name', function(err, clients){
           if (err) return done(err);
-          expect(exists).to.equal(0);
+          expect(clients).to.have.length(0);
           done();
-        });
+        })
       });
     });
   });
@@ -293,5 +322,37 @@ describe('Adapter', function () {
         done();
       });
     });
+  });
+
+  describe("#_getTimeFraction", function() {
+    beforeEach(function() {
+      this.clock = sinon.useFakeTimers();
+    });
+
+    afterEach(function() {
+      this.clock.restore();
+    });
+
+    it('should substract from the current time interval when offset provided', function() {
+      var current = adapter._getTimeFraction();
+      var oneBefore = adapter._getTimeFraction(1);
+      expect(current - 1).to.be.equal(oneBefore);
+    });
+
+    it('should change fraction every 10 seconds if ttl is 100 seconds', function() {
+      adapter = new Adapter({ttl: 100});
+      var current = adapter._getTimeFraction();
+      this.clock.tick(10 * 1000);
+      var next = adapter._getTimeFraction();
+      expect(current + 1).to.be.equal(next);
+    });
+
+    it('should change time every 2h and 24min by default', function() {
+      var current = adapter._getTimeFraction();
+      this.clock.tick( (2 * 60 + 24) * 60 * 1000 );
+      var next = adapter._getTimeFraction();
+      expect(current + 1).to.be.equal(next);
+    });
+
   });
 });
