@@ -61,16 +61,30 @@ function createClient() {
 }
 ```
 
-### channel
+### prefix
 
 Type: `String`
 
-The name of the channel to use, the default channel is "primus".
+Prefix added to every redis key and default channel, default channel is "primus-cluster:".
 
 ```js
 new Primus(server, {
   cluster: {
-    channel: "primus",
+    prefix: "my-client:",
+  },
+});
+```
+
+### channel
+
+Type: `String`
+
+The name of the channel to use, the default channel is `${prefix}pubsub`.
+
+```js
+new Primus(server, {
+  cluster: {
+    channel: "my-client:awesome-channel",
   },
 });
 ```
