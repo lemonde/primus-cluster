@@ -1,4 +1,6 @@
-# primus-cluster [![Build Status](https://travis-ci.org/neoziro/primus-cluster.png)](https://travis-ci.org/neoziro/primus-cluster)
+# primus-cluster
+
+![CI](https://github.com/lemonde/locky/workflows/CI/badge.svg)
 
 Primus cluster runs Primus accross multiple servers, it use Redis to store data and distribute messages across Primus instances. For more informations you can see [Redis Pub/Sub](http://redis.io/topics/pubsub).
 
@@ -7,18 +9,17 @@ is not compatible with other Primus plugins and with Primus v2+.
 
 This plugin works with [primus-emitter](https://github.com/cayasso/primus-emitter/), [primus-rooms](https://github.com/cayasso/primus-rooms/), and [primus-resource](https://github.com/cayasso/primus-resource/).
 
-
 ## Usage
 
 ```js
-var http = require('http');
-var Primus = require('primus');
-var PrimusCluster = require('primus-cluster');
+const http = require("http");
+const Primus = require("primus");
+const PrimusCluster = require("primus-cluster");
+const
+const server = http.createServer();
+const primus = new Primus(server);
 
-var server = http.createServer();
-var primus = new Primus(server);
-
-primus.use('cluster', PrimusCluster);
+primus.plugin("cluster", PrimusCluster);
 ```
 
 ## Options
@@ -35,26 +36,26 @@ new Primus(server, {
   cluster: {
     redis: {
       port: 6379,
-      host: '127.0.0.1',
-      connect_timeout: 200
-    }
-  }
-})
+      host: "127.0.0.1",
+      connect_timeout: 200,
+    },
+  },
+});
 ```
 
 If you specify a **function**, it will be called to create redis clients.
 
 ```js
-var redis = require('redis');
+const redis = require("redis");
 
 new Primus(server, {
   cluster: {
-    redis: createClient
-  }
-})
+    redis: createClient,
+  },
+});
 
 function createClient() {
-  var client = redis.createClient();
+  const client = redis.createClient();
   client.select(1); // Choose a custom database.
   return client;
 }
@@ -69,9 +70,9 @@ The name of the channel to use, the default channel is "primus".
 ```js
 new Primus(server, {
   cluster: {
-    channel: 'primus'
-  }
-})
+    channel: "primus",
+  },
+});
 ```
 
 ### ttl
@@ -83,20 +84,19 @@ The TTL of the data stored in redis in second, the default value is 86400 (1 day
 ```js
 new Primus(server, {
   cluster: {
-    ttl: 86400
-  }
-})
+    ttl: 86400,
+  },
+});
 ```
 
 ## Use with other plugins
 
 When you use primus-redis with other plugins, you must take care of calling primus-cluster after all plugins.
 
-
 ```js
-primus.use('rooms', PrimusRooms);
-primus.use('emitter', PrimusEmitter);
-primus.use('cluster', PrimusCluster);
+primus.plugin("rooms", PrimusRooms);
+primus.plugin("emitter", PrimusEmitter);
+primus.plugin("cluster", PrimusCluster);
 ```
 
 ## License

@@ -1,0 +1,16 @@
+{
+  "include": ["lib/**/*"],
+  "compilerOptions": {
+    "target": "es2015",
+    "baseUrl": "server",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "maxNodeModuleJsDepth": 2,
+    "skipLibCheck": true
+  }
+}
