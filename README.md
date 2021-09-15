@@ -1,6 +1,6 @@
 # primus-cluster
 
-![CI](https://github.com/lemonde/locky/workflows/CI/badge.svg)
+![CI](https://github.com/lemonde/primus-cluster/workflows/CI/badge.svg)
 
 Primus cluster runs Primus accross multiple servers, it use Redis to store data and distribute messages across Primus instances. For more informations you can see [Redis Pub/Sub](http://redis.io/topics/pubsub).
 
